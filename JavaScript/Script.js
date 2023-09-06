@@ -1,3 +1,4 @@
+// Configuração das informações de autenticação e cabeçalhos da API
 let key = {
   method: 'GET',
   headers: {
@@ -6,87 +7,101 @@ let key = {
   }
 };
 
-fetch('https://free-to-play-games-database.p.rapidapi.com/api/games', key)
+// Seleciona o elemento com o ID "recebe" no documento HTML
+let recebeElement = document.querySelector('#recebe');
 
-let recebeElement = document.querySelector('#recebe')
-let jogosContainer = document.querySelector('jogos')
-let conteudo = document.querySelector(".conteudo");
-let busca = document.querySelector("input[type='search']");
+// Seleciona o elemento com a classe "conteudos" no documento HTML
+let conteudos = document.querySelector(".conteudos");
 
+// Seleciona o elemento de input do tipo "search" no documento HTML
+let inputSearch = document.querySelector("input[type='search']");
+
+// Função assíncrona para buscar todos os jogos
 async function getallgames() {
+  try {
+    // Realiza uma requisição assíncrona para a API e aguarda a resposta
+    let response = await fetch('https://free-to-play-games-database.p.rapidapi.com/api/games', key);
 
-  let response = await fetch('https://free-to-play-games-database.p.rapidapi.com/api/games');
-  let game = await response.json();
-  console.log(game);
+    // Converte a resposta em formato JSON
+    let data = await response.json();
 
-  let container = document.querySelector(".conteudos");
-  let inputSearch = document.querySelector("input[type='search']");
-
-  /TRABALHANDO COM O SISTEMA DE PESQUISA/
-
-  let items = [];
-
-  inputSearch.oninput = () => {
-    container.innerHTML = "";
-    items
-      .filter((item) =>
-        item.toLowerCase().includes(inputSearch.value.toLowerCase())//é o vd para cada e o jogos para todos
-      )
-      .forEach((item) => addHTML(item));
-  };
-
-  function addHTML(item1, item2, item3, item4, item5, item6, item7, item8, item9){
-    let div = document.createElement("div");
-    let title = document.createElement("h1")
-    let thumbnail = document.createElement("img")
-    let short_description = document.createElement("h2")
-    let publisher = document.createElement("p")
-    let platform = document.createElement("p")
-    let genre = document.createElement("p")
-    let game_url = document.createElement("p")
-    let developer = document.createElement("p")
-    let release_date = document.createElement("p")
-
-    title.innerHTML = item1;
-    thumbnail.src = item2;
-    short_description.innerHTML = item3;
-    publisher.innerHTML = item4;
-    platform.innerHTML = item5;
-    genre.innerHTML = item6;
-    game_url.innerHTML = item7;
-    developer.innerHTML = item8;
-    release_date.innerHTML = item9;
-
-    div.appendChild(title)
-    div.appendChild(thumbnail)
-    div.appendChild(short_description)
-    div.appendChild(developer)
-    div.appendChild(publisher)
-    div.appendChild(genre)
-    div.appendChild(platform)
-    div.appendChild(game_url)
-    div.appendChild(release_date)
-    
-    container.append(div);
-  }
-
-  fetch('https://free-to-play-games-database.p.rapidapi.com/api/games', key)
-    .then((data) => data.json())
-    .then((users) => {
-      users.forEach((user) => {
-        addHTML(user.title, user.thumbnail, user.short_description, user.publisher, user.platform, user.genre, user.game_url,
-          user.developer, user.release_date);
-        items.push(user.title, user.thumbnail, user.short_description, user.publisher, user.platform, user.genre, user.game_url,
-          user.developer, user.release_date);
-      });
+    // Mapeia os dados da resposta para um novo formato de objeto
+    let items = data.map((item) => {
+      return {
+        title: item.title,
+        thumbnail: item.thumbnail,
+        short_description: item.short_description,
+        publisher: item.publisher,
+        platform: item.platform,
+        genre: item.genre,
+        game_url: item.game_url,
+        developer: item.developer,
+        release_date: item.release_date
+      };
     });
 
+    // Define um evento para quando o valor do campo de busca é alterado
+    inputSearch.oninput = () => {
+      // Limpa o conteúdo do elemento com a classe "conteudos"
+      conteudos.innerHTML = "";
 
-  /fIM DO SISTEMA/
+      // Filtra os itens com base no título inserido no campo de busca
+      items
+        .filter((item) =>
+          item.title.toLowerCase().includes(inputSearch.value.toLowerCase())
+        )
+        // Para cada item filtrado, chama a função "addHTML"
+        .forEach((item) => addHTML(item));
+    };
 
-  //name = title
+    // Função para adicionar elementos HTML com base nos itens
+    function addHTML(item) {
+      let div = document.createElement("div");
+      let title = document.createElement("h1");
+      let thumbnail = document.createElement("img");
+      let short_description = document.createElement("h2");
+      let publisher = document.createElement("p");
+      let platform = document.createElement("p");
+      let genre = document.createElement("p");
+      let game_url = document.createElement("p");
+      let developer = document.createElement("p");
+      let release_date = document.createElement("p");
 
+      // Define o conteúdo dos elementos com base nos dados do item
+      title.innerHTML = item.title;
+      thumbnail.src = item.thumbnail;
+      short_description.innerHTML = item.short_description;
+      publisher.innerHTML = item.publisher;
+      platform.innerHTML = item.platform;
+      genre.innerHTML = item.genre;
+      game_url.innerHTML = item.game_url;
+      developer.innerHTML = item.developer;
+      release_date.innerHTML = item.release_date;
 
+      // Anexa os elementos criados ao elemento pai "div"
+      div.appendChild(title);
+      div.appendChild(thumbnail);
+      div.appendChild(short_description);
+      div.appendChild(publisher);
+      div.appendChild(genre);
+      div.appendChild(platform);
+      div.appendChild(game_url);
+      div.appendChild(developer);
+      div.appendChild(release_date);
+
+      // Adiciona a "div" ao elemento com a classe "conteudos"
+      conteudos.append(div);
+    }
+
+    // Para cada item, chama a função "addHTML" para criar os elementos HTML
+    items.forEach((item) => {
+      addHTML(item);
+    });
+  } catch (error) {
+    // Em caso de erro, exibe o erro no console
+    console.error(error);
+  }
 }
 
+// Chama a função "getallgames" para iniciar o processo de busca de jogos
 getallgames();
